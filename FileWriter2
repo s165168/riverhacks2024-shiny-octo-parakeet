@@ -1,0 +1,23 @@
+import java.util.*;
+import java.io.*;
+
+public class Words {
+  public static void main(String[] args) throws Exception {
+    Scanner sc = new Scanner(new File("wordlist.txt"));
+
+    String fin = "['";
+    while (sc.hasNext())
+      {
+        fin += sc.next().toUpperCase() + "', '";
+      }
+     fin = fin.substring(0, fin.length() - 3) + "];";
+    try {
+      FileWriter myWriter = new     FileWriter("output2.txt");
+      myWriter.write(fin);
+      myWriter.close();
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    }
+  }
+}
