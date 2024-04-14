@@ -1,0 +1,389 @@
+import React, { Component } from 'react';
+import { AppRegistry, Text, View, StyleSheet, Image, TextInput, ImageBackground, TouchableHighlight, Alert, Dimensions, ScrollView } from 'react-native';
+import Constants from 'expo-constants';
+
+let deviceHeight = Dimensions.get('window').height;
+let deviceWidth = Dimensions.get('window').width;
+
+let dark = '#1d3d69';
+let light = '#c1e0dd';
+let light2 = '#f0f2f2'; // background
+let med = '#738f91';
+let med2 = '#295880';
+
+export default class App extends Component {
+    state = {
+        displayTTFE: 'block',
+        
+        grid: [
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0],
+        ],
+        
+        randRowIndex: 0,
+        randColIndex: 0,
+    }
+    
+    reset = () => {
+        let grid = this.state.grid;
+        grid = [
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0],
+        ];
+        this.setState({grid: grid});
+    }
+    
+    gameOver = () => {
+        for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+                if (this.state.grid[r][c] == 0) {
+                    return;
+                }
+                if (this.state.grid[r][c] == this.state.grid [r][c + 1]) {
+                    return;
+                }
+                if (this.state.grid[r][c] == this.state.grid [r + 1][c]) {
+                    return;
+                }
+            }
+        }
+        alert('Must reset!');
+    }
+    
+    newRandIndexGenerator = () => {
+        this.setState({randRowIndex: Math.trunc(Number(Math.random()*4))});
+        this.setState({randColIndex: Math.trunc(Number(Math.random()*4))});
+    }
+    
+    changeRandIndex = () => {
+        if (this.state.grid[this.state.randRowIndex][this.state.randColIndex] != 0) {
+            this.newRandIndexGenerator();
+        }
+        if (this.state.grid[this.state.randRowIndex][this.state.randColIndex] == 0) {
+            let grid = this.state.grid;
+            grid[this.state.randRowIndex][this.state.randColIndex] = 2;
+            this.setState({grid: grid});
+        }
+    }
+    
+    updateUpVals = (rowIndex, colIndex) => {
+        if (rowIndex > -1 && colIndex > -1)
+            if (this.state.grid[rowIndex][colIndex] == 0) {
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = grid[rowIndex + 1][colIndex];
+                grid[rowIndex + 1][colIndex] = 0;
+                this.setState({grid: grid});
+            }
+            else if (this.state.grid[rowIndex][colIndex] == this.state.grid[rowIndex + 1][colIndex]){
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = 2*grid[rowIndex][colIndex];
+                grid[rowIndex + 1][colIndex] = 0;
+                this.setState({grid: grid});
+            }
+    }
+    
+    upPress = () => {
+        for (let c = 0; c < 4; c++) {
+            for (let r = 0; r < 3; r++) {
+                this.updateUpVals(r, c);
+                this.updateUpVals(r - 1, c);
+                this.updateUpVals(r - 2, c);
+            }
+        }
+        this.changeRandIndex();
+    }
+    
+    updateLeftVals = (rowIndex, colIndex) => {
+        if (rowIndex > -1 && colIndex > -1)
+            if (this.state.grid[rowIndex][colIndex] == 0) {
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = grid[rowIndex][colIndex + 1];
+                grid[rowIndex][colIndex + 1] = 0;
+                this.setState({grid: grid});
+            }
+            else if (this.state.grid[rowIndex][colIndex] == this.state.grid[rowIndex][colIndex + 1]){
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = 2*grid[rowIndex][colIndex];
+                grid[rowIndex][colIndex + 1] = 0;
+                this.setState({grid: grid});
+            }
+    }
+    
+    leftPress = () => {
+        for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 3; c++) {
+                this.updateLeftVals(r, c);
+                this.updateLeftVals(r, c - 1);
+                this.updateLeftVals(r, c - 2);
+            }
+        }
+        this.changeRandIndex();
+    }
+    
+    updateDownVals = (rowIndex, colIndex) => {
+        if (rowIndex < 4 && colIndex < 4)
+            if (this.state.grid[rowIndex][colIndex] == 0) {
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = grid[rowIndex - 1][colIndex];
+                grid[rowIndex - 1][colIndex] = 0;
+                this.setState({grid: grid});
+            }
+            else if (this.state.grid[rowIndex][colIndex] == this.state.grid[rowIndex - 1][colIndex]){
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = 2*grid[rowIndex][colIndex];
+                grid[rowIndex - 1][colIndex] = 0;
+                this.setState({grid: grid});
+            }
+    }
+    
+    downPress = () => {
+        for (let c = 0; c < 4; c++) {
+            for (let r = 3; r > 0; r--) {
+                this.updateDownVals(r, c);
+                this.updateDownVals(r + 1, c);
+                this.updateDownVals(r + 2, c);
+            }
+        }
+        this.changeRandIndex();
+    }
+    
+    updateRightVals = (rowIndex, colIndex) => {
+        if (rowIndex < 4 && colIndex < 4)
+            if (this.state.grid[rowIndex][colIndex] == 0) {
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = grid[rowIndex][colIndex - 1];
+                grid[rowIndex][colIndex - 1] = 0;
+                this.setState({grid: grid});
+            }
+            else if (this.state.grid[rowIndex][colIndex] == this.state.grid[rowIndex][colIndex - 1]){
+                let grid = this.state.grid;
+                grid[rowIndex][colIndex] = 2*grid[rowIndex][colIndex];
+                grid[rowIndex][colIndex - 1] = 0;
+                this.setState({grid: grid});
+            }
+    }
+    
+    rightPress = () => {
+        for (let r = 0; r < 4; r++) {
+            for (let c = 3; c > 0; c--) {
+                this.updateRightVals(r, c);
+                this.updateRightVals(r, c + 1);
+                this.updateRightVals(r, c + 2);
+            }
+        }
+        this.changeRandIndex();
+    }
+    
+    render() {
+        return (
+            <View style = {[styles.TTFEcontainer, {display: this.state.displayTTFE}]}>
+                <View style = {styles.TTFEcontainer}>
+                    <View style = {styles.titleBox}>
+                        <Text style = {styles.title}>
+                            2048
+                        </Text>
+                    </View>
+                    <TouchableHighlight
+                        onPress={() => {this.reset()}}
+                    >
+                        <View style = {styles.resetButton}>
+                            <Text style = {styles.paragraph2}>
+                                Reset
+                            </Text>
+                        </View>
+                    </TouchableHighlight>
+                    <View style = {{margin: deviceWidth/20}}>
+                        <View style = {{flexDirection: 'row',}}>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[0][0]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[0][1]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[0][2]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[0][3]}
+                                </Text>
+                            </View>
+                        </View>
+                        <View style = {{flexDirection: 'row',}}>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[1][0]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[1][1]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[1][2]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[1][3]}
+                                </Text>
+                            </View>
+                        </View>
+                        <View style = {{flexDirection: 'row',}}>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[2][0]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[2][1]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[2][2]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[2][3]}
+                                </Text>
+                            </View>
+                        </View>
+                        <View style = {{flexDirection: 'row',}}>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[3][0]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[3][1]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[3][2]}
+                                </Text>
+                            </View>
+                            <View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    {this.state.grid[3][3]}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                    
+                    <TouchableHighlight
+                        onPress={() => {this.upPress()}}
+                    >
+                        {<View style = {styles.tile}>
+                            <Text style = {styles.paragraph}>
+                                U
+                            </Text>
+                        </View>}
+                    </TouchableHighlight>
+                    
+                    <View style = {{flexDirection: 'row'}}>
+                        <TouchableHighlight
+                            onPress={() => {this.leftPress()}}
+                        >
+                            {<View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    L
+                                </Text>
+                            </View>}
+                        </TouchableHighlight>
+                        
+                        <TouchableHighlight
+                            onPress={() => {this.downPress()}}
+                        >
+                            {<View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    D
+                                </Text>
+                            </View>}
+                        </TouchableHighlight>
+                        <TouchableHighlight
+                            onPress={() => {this.rightPress()}}
+                        >
+                            {<View style = {styles.tile}>
+                                <Text style = {styles.paragraph}>
+                                    R
+                                </Text>
+                            </View>}
+                        </TouchableHighlight>
+                    </View>
+                </View>
+            </View>
+        );
+    }
+}
+
+const styles = StyleSheet.create({
+    TTFEcontainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: Constants.statusBarHeight,
+        backgroundColor: light2,
+    },
+    paragraph: {
+        margin: 24,
+        fontSize: 24,
+        textAlign: 'center',
+        color: light,
+    },
+    tile: {
+        width: deviceWidth/6,
+        height: deviceWidth/6,
+        backgroundColor: 'lightgrey',
+        borderWidth: 2,
+        borderColor: 'grey',
+        borderRadius: 10,
+        alignItems: 'center',
+        backgroundColor: dark,
+        justifyContent: 'center',
+        
+    },
+    titleBox: {
+        width: deviceWidth/2,
+        height: deviceWidth/5,
+        margin: deviceWidth/20,
+        backgroundColor: med,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    title: {
+        fontSize: 30,
+        fontWeight: 'light',
+        textAlign: 'center',
+        color: light,
+    },
+    resetButton: {
+        width: 2*deviceWidth/7,
+        height: deviceWidth/8,
+        backgroundColor: med2,
+        justifyContent: 'center',
+    },
+    paragraph2: {
+        fontSize: 15,
+        color: light2,
+        textAlign: 'center',
+        
+    },
+    
+});
